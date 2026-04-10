@@ -1,1 +1,5 @@
-# Simulador-de-b-squedas
+# Simulador-de-busquedas:
+Lineal.
+Binaria.
+Exponencial.
+Interpolación.
