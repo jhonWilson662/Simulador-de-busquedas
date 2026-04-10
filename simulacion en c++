@@ -1,0 +1,208 @@
+#include <iostream>
+#include <vector>
+#include <iomanip>
+#include <thread>
+#include <chrono>
+
+using namespace std;
+
+// Pausa para simular proceso
+void pausa() {
+    this_thread::sleep_for(chrono::milliseconds(700));
+}
+
+// Imprimir arreglo
+void imprimirArray(const vector<int>& arr) {
+    cout << "\nArray: [ ";
+    for (int i = 0; i < arr.size(); i++) {
+        cout << arr[i];
+        if (i < arr.size() - 1) cout << ", ";
+    }
+    cout << " ]\n";
+}
+
+// ================== BUSQUEDA LINEAL ==================
+void busquedaLineal(const vector<int>& arr, int x) {
+    cout << "\n=== SIMULACION: BUSQUEDA LINEAL ===\n";
+    imprimirArray(arr);
+
+    cout << "\nIter | Indice | Valor | Comparacion | Resultado\n";
+    cout << "-------------------------------------------------------\n";
+
+    for (int i = 0; i < arr.size(); i++) {
+        cout << setw(4) << i+1
+             << setw(8) << i
+             << setw(8) << arr[i]
+             << setw(15) << (to_string(arr[i]) + "==" + to_string(x));
+
+        if (arr[i] == x) {
+            cout << setw(15) << "IGUAL\n";
+            cout << "\n>> Imprimir: Elemento encontrado en indice " << i << endl;
+            return;
+        } else {
+            cout << setw(15) << "NO\n";
+        }
+
+        pausa();
+    }
+
+    cout << "\n>> Imprimir: Elemento NO encontrado\n";
+}
+
+// ================== BUSQUEDA BINARIA ==================
+void busquedaBinaria(const vector<int>& arr, int x, int izq, int der) {
+    int iter = 1;
+
+    cout << "\nIter | Izq | Der | Mid | Valor | Comparacion | Accion\n";
+    cout << "---------------------------------------------------------------\n";
+
+    while (izq <= der) {
+        int mid = izq + (der - izq) / 2;
+
+        cout << setw(4) << iter
+             << setw(6) << izq
+             << setw(6) << der
+             << setw(6) << mid
+             << setw(8) << arr[mid];
+
+        if (arr[mid] == x) {
+            cout << setw(15) << "=="
+                 << setw(12) << "ENCONTRADO\n";
+
+            cout << "\n>> Imprimir: Elemento encontrado en indice " << mid << endl;
+            return;
+        }
+        else if (arr[mid] < x) {
+            cout << setw(15) << "<"
+                 << setw(12) << "Derecha\n";
+            izq = mid + 1;
+        }
+        else {
+            cout << setw(15) << ">"
+                 << setw(12) << "Izquierda\n";
+            der = mid - 1;
+        }
+
+        iter++;
+        pausa();
+    }
+
+    cout << "\n>> Imprimir: Elemento NO encontrado\n";
+}
+
+void ejecutarBinaria(const vector<int>& arr, int x) {
+    cout << "\n=== SIMULACION: BUSQUEDA BINARIA ===\n";
+    imprimirArray(arr);
+    busquedaBinaria(arr, x, 0, arr.size() - 1);
+}
+
+// ================== BUSQUEDA INTERPOLACION ==================
+void busquedaInterpolacion(const vector<int>& arr, int x) {
+    cout << "\n=== SIMULACION: BUSQUEDA INTERPOLACION ===\n";
+    imprimirArray(arr);
+
+    int bajo = 0, alto = arr.size() - 1;
+    int iter = 1;
+
+    cout << "\nIter | Bajo | Alto | Pos | Valor | Comparacion | Accion\n";
+    cout << "----------------------------------------------------------------\n";
+
+    while (bajo <= alto && x >= arr[bajo] && x <= arr[alto]) {
+
+        if (arr[alto] == arr[bajo]) break;
+
+        int pos = bajo + ((double)(alto - bajo) / (arr[alto] - arr[bajo])) * (x - arr[bajo]);
+
+        cout << setw(4) << iter
+             << setw(6) << bajo
+             << setw(6) << alto
+             << setw(6) << pos
+             << setw(8) << arr[pos];
+
+        if (arr[pos] == x) {
+            cout << setw(15) << "=="
+                 << setw(12) << "ENCONTRADO\n";
+
+            cout << "\n>> Imprimir: Elemento encontrado en indice " << pos << endl;
+            return;
+        }
+
+        if (arr[pos] < x) {
+            cout << setw(15) << "<"
+                 << setw(12) << "Derecha\n";
+            bajo = pos + 1;
+        } else {
+            cout << setw(15) << ">"
+                 << setw(12) << "Izquierda\n";
+            alto = pos - 1;
+        }
+
+        iter++;
+        pausa();
+    }
+
+    cout << "\n>> Imprimir: Elemento NO encontrado\n";
+}
+
+// ================ BUSQUEDA EXPONENCIAL ================
+void busquedaExponencial(const vector<int>& arr, int x) {
+    cout << "\n=== SIMULACION: BUSQUEDA EXPONENCIAL ===\n";
+    imprimirArray(arr);
+
+    int n = arr.size();
+
+    if (arr[0] == x) {
+        cout << "\n>> Imprimir: Encontrado en indice 0\n";
+        return;
+    }
+
+    int i = 1, iter = 1;
+
+    cout << "\nFASE 1: EXPONENCIAL\n";
+    cout << "Iter | Indice | Valor | Accion\n";
+    cout << "---------------------------------------\n";
+
+    while (i < n && arr[i] <= x) {
+        cout << setw(4) << iter++
+             << setw(8) << i
+             << setw(8) << arr[i]
+             << setw(15) << "Duplicar rango\n";
+        i *= 2;
+        pausa();
+    }
+
+    int izq = i / 2;
+    int der = min(i, n - 1);
+
+    cout << "\nFASE 2: BINARIA EN RANGO [" << izq << " - " << der << "]\n";
+
+    busquedaBinaria(arr, x, izq, der);
+}
+
+// ================== MAIN ==================
+int main() {
+    vector<int> datos = {10, 25, 30, 45, 50, 65};
+
+    int opcion, objetivo;
+
+    cout << "=========== MENU ===========\n";
+    cout << "1. Busqueda Lineal\n";
+    cout << "2. Busqueda Binaria\n";
+    cout << "3. Busqueda Exponencial\n";
+    cout << "4. Busqueda Interpolacion\n";
+    cout << "Seleccione opcion: ";
+    cin >> opcion;
+
+    cout<<"numeros = {10, 25, 30, 45, 50, 65};"<<endl;
+    cout << "Ingrese numero a buscar: ";
+    cin >> objetivo;
+
+    switch (opcion) {
+        case 1: busquedaLineal(datos, objetivo); break;
+        case 2: ejecutarBinaria(datos, objetivo); break;
+        case 3: busquedaExponencial(datos, objetivo); break;
+        case 4: busquedaInterpolacion(datos, objetivo); break;
+        default: cout << "Opcion invalida\n";
+    }
+    return 0;
+}
